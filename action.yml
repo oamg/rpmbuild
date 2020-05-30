@@ -2,11 +2,14 @@ name: 'RPM Build'
 description: 'Build RPMs from spec file and upload it as Artifact or Release Asset'
 author: 'Naveenraj M'
 
-inputs: 
+inputs:
   spec_file:
     description: 'path to the spec file'
     required: true
     default: '*.spec'                     #Any spec file in top 
+  os_major_version:
+    description: 'version of enterprise linux'
+    default: '7'
 
 outputs:
   source_rpm_path:
@@ -22,7 +25,7 @@ outputs:
 
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: Dockerfile-${{ inputs.os_major_version }}
 
 branding:
   icon: 'package'
