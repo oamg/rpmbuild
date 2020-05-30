@@ -1,27 +1,28 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
-const exec = require('@actions/exec');
-const io = require('@actions/io');
-const cp = require('child_process');
-const fs = require('fs');
+const gha_core = require('@actions/core');
+const gha_github = require('@actions/github');
+const gha_exec = require('@actions/exec').exec;
+//const gha_io = require('@actions/io');
+const node_fs = require('fs');
+const node_path = require('path');
 
 async function run() {
-  try {
 
+  // catch thrown errors
+  try {
     // Get github context data
-    const context = github.context;
+    const context = gha_github.context;
 
     // To be used to get contents of this git ref 
     const owner = context.repo.owner
     const repo = context.repo.repo
     const ref = context.ref
 
-    // get inputs from workflow
-    // specFile name
-    const specFile = core.getInput('spec_file');
+    // input: spec_file
+    const specPath = gha_core.getInput('spec_file');
+    const specFile = node_path.basename(specPath);
 
     // Read spec file and get values 
-    var data = fs.readFileSync(specFile, 'utf8');
+    var data = node_fs.readFileSync(specPath, 'utf8');
     let name = '';       
     let version = '';
 
@@ -38,47 +39,45 @@ async function run() {
     console.log(`version: ${version}`);
 
     // setup rpm tree
-    await exec.exec('rpmdev-setuptree');
+    await gha_exec('rpmdev-setuptree');
 
-    // Copy spec file from path specFile to /root/rpmbuild/SPECS/
-    await exec.exec(`cp /github/workspace/${specFile} /github/home/rpmbuild/SPECS/`);
+    // Copy spec file from path specPath to /root/rpmbuild/SPECS/
+    await gha_exec(`cp /github/workspace/${specPath} /github/home/rpmbuild/SPECS/`);
 
     // Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
-    await exec.exec(`curl -L --output tmp.tar.gz https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`)
+    await gha_exec(`curl -L --output tmp.tar.gz https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`)
 
     // create directory to match source file - %{name}-{version}.tar.gz of spec file
-    await exec.exec(`mkdir ${name}-${version}`);
+    await gha_exec(`mkdir ${name}-${version}`);
 
     // Extract source code 
-    await exec.exec(`tar xvf tmp.tar.gz -C ${name}-${version} --strip-components 1`);
+    await gha_exec(`tar xvf tmp.tar.gz -C ${name}-${version} --strip-components 1`);
 
     // Create Source tar.gz file 
-    await exec.exec(`tar -czvf ${name}-${version}.tar.gz ${name}-${version}`);
+    await gha_exec(`tar -czvf ${name}-${version}.tar.gz ${name}-${version}`);
 
     // // list files in current directory /github/workspace/
-    // await exec.exec('ls -la ');
+    // await gha_exec('ls -la ');
 
     // Copy tar.gz file to source path
-    await exec.exec(`cp ${name}-${version}.tar.gz /github/home/rpmbuild/SOURCES/`);
+    await gha_exec(`cp ${name}-${version}.tar.gz /github/home/rpmbuild/SOURCES/`);
 
-    // Execute rpmbuild , -ba generates both RPMS and SPRMS
-    try {
-      await exec.exec(
-        `rpmbuild -ba /github/home/rpmbuild/SPECS/${specFile}`
-      );
-    } catch (err) {
-      core.setFailed(`action failed with error: ${err}`);
-    }
+    // install all BuildRequires: listed in specFile
+    await gha_exec(`yum-builddep /github/home/rpmbuild/SPECS/${specFile}`);
+
+    // main operation
+    await gha_exec(`rpmbuild -ba /github/home/rpmbuild/SPECS/${specFile}`);
 
     // Verify RPM is created
-    await exec.exec('ls /github/home/rpmbuild/RPMS');
+    await gha_exec('ls /github/home/rpmbuild/RPMS');
 
     // setOutput rpm_path to /root/rpmbuild/RPMS , to be consumed by other actions like 
     // actions/upload-release-asset 
 
     // Get source rpm name , to provide file name, path as output
     let myOutput = '';
-    await cp.exec('ls /github/home/rpmbuild/SRPMS/', (err, stdout, stderr) => {
+    await gha_exec('ls /github/home/rpmbuild/SRPMS/', (err, stdout, stderr) =>
+    {
       if (err) {
         //some err occurred
         console.error(err)
@@ -88,31 +87,29 @@ async function run() {
           myOutput = myOutput+`${stdout}`.trim();
           console.log(`stderr: ${stderr}`);
         }
-      });
+    });
 
 
     // only contents of workspace can be changed by actions and used by subsequent actions 
     // So copy all generated rpms into workspace , and publish output path relative to workspace (/github/workspace)
-    await exec.exec(`mkdir -p rpmbuild/SRPMS`);
-    await exec.exec(`mkdir -p rpmbuild/RPMS`);
+    await gha_exec(`mkdir -p rpmbuild/SRPMS`);
+    await gha_exec(`mkdir -p rpmbuild/RPMS`);
 
-    await exec.exec(`cp /github/home/rpmbuild/SRPMS/${myOutput} rpmbuild/SRPMS`);
-    await cp.exec(`cp -R /github/home/rpmbuild/RPMS/. rpmbuild/RPMS/`);
+    await gha_exec(`cp /github/home/rpmbuild/SRPMS/${myOutput} rpmbuild/SRPMS`);
+    await gha_exec(`cp -R /github/home/rpmbuild/RPMS/. rpmbuild/RPMS/`);
 
-    await exec.exec(`ls -la rpmbuild/SRPMS`);
-    await exec.exec(`ls -la rpmbuild/RPMS`);
+    await gha_exec(`ls -la rpmbuild/SRPMS`);
+    await gha_exec(`ls -la rpmbuild/RPMS`);
     
     // set outputs to path relative to workspace ex ./rpmbuild/
-    core.setOutput("source_rpm_dir_path", `rpmbuild/SRPMS/`);              // path to  SRPMS directory
-    core.setOutput("source_rpm_path", `rpmbuild/SRPMS/${myOutput}`);       // path to Source RPM file
-    core.setOutput("source_rpm_name", `${myOutput}`);                      // name of Source RPM file
-    core.setOutput("rpm_dir_path", `rpmbuild/RPMS/`);                      // path to RPMS directory
-    core.setOutput("rpm_content_type", "application/octet-stream");        // Content-type for Upload
-    
-
+    gha_core.setOutput("source_rpm_dir_path", `rpmbuild/SRPMS/`);              // path to  SRPMS directory
+    gha_core.setOutput("source_rpm_path", `rpmbuild/SRPMS/${myOutput}`);       // path to Source RPM file
+    gha_core.setOutput("source_rpm_name", `${myOutput}`);                      // name of Source RPM file
+    gha_core.setOutput("rpm_dir_path", `rpmbuild/RPMS/`);                      // path to RPMS directory
+    gha_core.setOutput("rpm_content_type", "application/octet-stream");        // Content-type for Upload
 
   } catch (error) {
-    core.setFailed(error.message);
+    gha_core.setFailed(error.message);
   }
 }
 
