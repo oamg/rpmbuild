@@ -6,7 +6,10 @@ COPY . .
 
 # Installing tools needed for rpmbuild , 
 # depends on BuildRequires field in specfile, (TODO: take as input & install)
-RUN yum install -y -q -e 0 rpm-build rpmdevtools gcc make coreutils python yum-utils nodejs
+RUN yum install -y rpm-build rpmdevtools gcc make coreutils python yum-utils epel-release
+
+# Install nodejs from epel
+RUN yum install -y nodejs
 
 # Setting up node to run our JS file
 # Download Node Linux binary
