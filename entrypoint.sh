@@ -3,8 +3,8 @@
 # initial values
 specPath=$1
 specFile=$(basename $specPath)
-name=$( grep "Name:" $specPath | awk 'print $2' )
-version=$( grep "Version:" $specPath | awk 'print $2' )
+name=$( grep "Name:" $specPath | awk '{print $2}' )
+version=$( grep "Version:" $specPath | awk '{print $2}' )
 
 # show env
 env
