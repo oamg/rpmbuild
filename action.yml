@@ -25,7 +25,7 @@ outputs:
 
 runs:
   using: 'docker'
-  image: Dockerfile-${{ inputs.os_major_version }}
+  image: Dockerfile-${{ os_major_version }}
 
 branding:
   icon: 'package'
