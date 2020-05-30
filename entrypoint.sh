@@ -6,8 +6,13 @@ specFile=$(basename $specPath)
 name=$( grep "Name:" $specPath | awk '{print $2}' )
 version=$( grep "Version:" $specPath | awk '{print $2}' )
 
+fx_cmd () {
+  echo "$@"
+  "$@"
+}
+
 # show env
-env
+fx_cmd env
 
 # setup rpmbuild tree
 rpmdev-setuptree
@@ -16,7 +21,7 @@ rpmdev-setuptree
 cp /github/workspace/${specPath} /github/home/rpmbuild/SPECS/
 
 # Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
-curl --location --output tmp.tar.gz https://api.github.com/repos/${owner}/${repo}/tarball/${ref}
+curl --location --output tmp.tar.gz https://api.github.com/repos/${GITHUB_REPOSITORY}/tarball/${GITHUB_REF}
 
 # create directory to match source file - %{name}-{version}.tar.gz of spec file
 mkdir ${name}-${version}
@@ -40,7 +45,7 @@ yum-builddep /github/home/rpmbuild/SPECS/${specFile}
 rpmbuild -ba /github/home/rpmbuild/SPECS/${specFile}
 
 # Verify RPM is created
-await gha_exec('ls /github/home/rpmbuild/RPMS');
+ls /github/home/rpmbuild/RPMS
 
 # setOutput rpm_path to /root/rpmbuild/RPMS , to be consumed by other actions like 
 # actions/upload-release-asset 
