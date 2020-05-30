@@ -7,13 +7,14 @@ name=$( grep "Name:" $specPath | awk '{print $2}' )
 version=$( grep "Version:" $specPath | awk '{print $2}' )
 
 fx_cmd () {
-  echo Command: "$@"
+  echo ::group::$@
   "$@"
   ERR=$?
   if [ $ERR -gt 0 ]; then
-    echo "Exitcode:${ERR}"
+    echo ::error::command returned non-zero exitcode ${ERR}
     exit ${ERR}
   fi
+  echo ::endgroup::$@
 }
 
 # show env
@@ -29,6 +30,9 @@ fx_cmd rpmdev-setuptree
 
 # Copy spec file from path specPath to /root/rpmbuild/SPECS/
 fx_cmd cp /github/workspace/${specPath} /github/home/rpmbuild/SPECS/
+
+# Rewrite Source: key in spec file
+sed -i "s=Source:.*=Source: %{name}-%{version}.tar.gz=" /github/home/rpmbuild/SPECS/${specFile}
 
 # Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
 fx_cmd curl --location --output tmp.tar.gz https://api.github.com/repos/${GITHUB_REPOSITORY}/tarball/${GITHUB_REF}
