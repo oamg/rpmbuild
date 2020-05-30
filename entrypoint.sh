@@ -9,7 +9,11 @@ version=$( grep "Version:" $specPath | awk '{print $2}' )
 fx_cmd () {
   echo Command: "$@"
   "$@"
-  ERR=$?; if [ $ERR -gt 0 ]; then; echo "Exitcode:${ERR}"; exit ${ERR}; fi
+  ERR=$?
+  if [ $ERR -gt 0 ]; then
+    echo "Exitcode:${ERR}"
+    exit ${ERR}
+  fi
 }
 
 # show env
