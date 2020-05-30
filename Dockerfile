@@ -10,7 +10,7 @@ RUN yum install -y -q -e 0 rpm-build rpmdevtools gcc make coreutils python yum-u
 
 # Setting up node to run our JS file
 # Download Node Linux binary
-RUN curl --progress-bar --output https://nodejs.org/dist/v12.16.1/node-v12.16.1-linux-x64.tar.xz
+RUN curl --progress-bar --remote-name https://nodejs.org/dist/v12.16.1/node-v12.16.1-linux-x64.tar.xz
 
 # Extract and install
 RUN tar --strip-components 1 -xf node-v* -C /usr/local
