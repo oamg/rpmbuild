@@ -6,6 +6,8 @@ inputs:
   spec_file:
     description: 'path to the spec file'
     required: true
+  preinstall_packages:
+    description: 'packages to install beforehand'
 
 outputs:
   source_rpm_path:
