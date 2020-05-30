@@ -45,7 +45,7 @@ async function run() {
     await gha_exec(`cp /github/workspace/${specPath} /github/home/rpmbuild/SPECS/`);
 
     // Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
-    await gha_exec(`curl --location --progress-bar --output tmp.tar.gz https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`)
+    await gha_exec(`curl --location --output tmp.tar.gz https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`)
 
     // create directory to match source file - %{name}-{version}.tar.gz of spec file
     await gha_exec(`mkdir ${name}-${version}`);
