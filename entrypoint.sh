@@ -9,14 +9,15 @@ version=$( grep "Version:" $specPath | awk '{print $2}' )
 fx_cmd () {
   echo Command: "$@"
   "$@"
+  [ $? -ne 0 ] && ERR=$? && echo Exitcode:$ERR && exit $ERR
 }
 
 # show env
 fx_cmd env
 
 # preinstall packages
-if [ "$GITHUB_PREINSTALL_PACKAGES" != "" ]; then
-  fx_cmd yum -y install $GITHUB_PREINSTALL_PACKAGES
+if [ "$INPUT_PREINSTALL_PACKAGES" != "" ]; then
+  fx_cmd yum -y install $INPUT_PREINSTALL_PACKAGES
 fi
 
 # setup rpmbuild tree
