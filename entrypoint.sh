@@ -21,7 +21,7 @@ fx_cmd env
 
 # preinstall packages
 if [ "$INPUT_PREINSTALL_PACKAGES" != "" ]; then
-  fx_cmd yum -y install $INPUT_PREINSTALL_PACKAGES
+  fx_cmd yum --assumeyes install $INPUT_PREINSTALL_PACKAGES
 fi
 
 # setup rpmbuild tree
@@ -49,7 +49,7 @@ fx_cmd tar -czf ${name}-${version}.tar.gz ${name}-${version}
 fx_cmd cp ${name}-${version}.tar.gz /github/home/rpmbuild/SOURCES/
 
 # install all BuildRequires: listed in specFile
-fx_cmd yum-builddep /github/home/rpmbuild/SPECS/${specFile}
+fx_cmd yum-builddep --assumeyes /github/home/rpmbuild/SPECS/${specFile}
 
 # main operation
 fx_cmd rpmbuild -ba /github/home/rpmbuild/SPECS/${specFile}
