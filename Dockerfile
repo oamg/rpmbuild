@@ -13,7 +13,7 @@ RUN yum install -y -q -e 0 rpm-build rpmdevtools gcc make coreutils python yum-u
 #RUN curl --remote-name https://nodejs.org/dist/v12.16.1/node-v12.16.1-linux-x64.tar.xz
 
 # Extract and install
-RUN tar --strip-components 1 -xf node-v* -C /usr/local
+#RUN tar --strip-components 1 -xf node-v* -C /usr/local
 
 # Install all dependecies to execute main.js
 RUN npm install --production
