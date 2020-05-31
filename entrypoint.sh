@@ -59,7 +59,7 @@ fx_cmd yum-builddep --assumeyes /github/home/rpmbuild/SPECS/${specFile}
 fx_cmd rpmbuild -ba /github/home/rpmbuild/SPECS/${specFile}
 
 # Verify binary output
-fx_cmd find /github/home/rpmbuild/RPMS
+fx_cmd find /github/home/rpmbuild/RPMS -type f
 
 # setOutput rpm_path to /root/rpmbuild/RPMS , to be consumed by other actions like 
 # actions/upload-release-asset 
@@ -72,8 +72,8 @@ SRPM=$(ls -1 /github/home/rpmbuild/SRPMS/ | grep ${name})
 fx_cmd mkdir -vp rpmbuild/SRPMS
 fx_cmd mkdir -vp rpmbuild/RPMS
 
-fx_cmd cp -v $(find -type f /github/home/rpmbuild/SRPMS) rpmbuild/SRPMS/
-fx_cmd cp -v $(find -type f /github/home/rpmbuild/RPMS) rpmbuild/RPMS/
+fx_cmd cp -v /github/home/rpmbuild/SRPMS/$SRPM rpmbuild/SRPMS/
+fx_cmd cp -v $(find /github/home/rpmbuild/RPMS -type f) rpmbuild/RPMS/
 
 fx_cmd ls -la rpmbuild/SRPMS
 fx_cmd ls -la rpmbuild/RPMS
