@@ -1,10 +1,14 @@
 #!/bin/bash
 
+# sanity
+[ ! -r $INPUT_SPEC_PATH ] && echo "::error::file is not readable $INPUT_SPEC_PATH" && exit 1
+
 # initial values
-specPath=$1
-specFile=$(basename $specPath)
-name=$( grep "Name:" $specPath | awk '{print $2}' )
-version=$( grep "Version:" $specPath | awk '{print $2}' )
+#HOME=/github/home
+#GITHUB_WORKSPACE=/github/workspace
+specFile=$(basename $INPUT_SPEC_PATH)
+name=$( grep "Name:" $INPUT_SPEC_PATH | awk '{print $2}' )
+version=$( grep "Version:" $INPUT_SPEC_PATH | awk '{print $2}' )
 
 fx_cmd () {
   echo ::group::$@
@@ -28,8 +32,8 @@ fi
 # setup rpmbuild tree
 fx_cmd rpmdev-setuptree
 
-# Copy spec file from path specPath to /root/rpmbuild/SPECS/
-fx_cmd cp -v /github/workspace/${specPath} rpmbuild/SPECS/
+# Copy spec file from path INPUT_SPEC_PATH to /root/rpmbuild/SPECS/
+fx_cmd cp -v $GITHUB_WORKSPACE/${INPUT_SPEC_PATH} rpmbuild/SPECS/
 #rpmSpec="rpmbuild/SPECS/${specFile}"
 
 # Rewrite Source: key in spec file
@@ -51,35 +55,35 @@ fx_cmd tar czf ${name}-${version}.tar.gz ${name}-${version}
 # await gha_exec('ls -la ');
 
 # Copy tar.gz file to source path
-fx_cmd mv -v ${name}-${version}.tar.gz rpmbuild/SOURCES/
+fx_cmd mv -v ${name}-${version}.tar.gz $HOME/rpmbuild/SOURCES/
 
 # install all BuildRequires: listed in specFile
-fx_cmd yum-builddep --assumeyes rpmbuild/SPECS/${specFile}
+fx_cmd yum-builddep --assumeyes $HOME/rpmbuild/SPECS/${specFile}
 
 # main operation
-fx_cmd rpmbuild -ba rpmbuild/SPECS/${specFile}
+fx_cmd rpmbuild -ba $HOME/rpmbuild/SPECS/${specFile}
 
 # Verify binary output
-fx_cmd find rpmbuild/RPMS -type f
-fx_cmd find rpmbuild/SRPMS -type f
+fx_cmd find $HOME/rpmbuild/RPMS -type f
+fx_cmd find $HOME/rpmbuild/SRPMS -type f
 
 # setOutput rpm_path to /root/rpmbuild/RPMS , to be consumed by other actions like 
 # actions/upload-release-asset 
 
 # Get source rpm name , to provide file name, path as output
-SRPM=$(ls -1 rpmbuild/SRPMS/ | grep ${name})
+SRPM=$(ls -1 $HOME/rpmbuild/SRPMS/ | grep ${name})
 
 # only contents of workspace can be changed by actions and used by subsequent actions 
 # So copy all generated rpms into workspace , and publish output path relative to workspace (/github/workspace)
-fx_cmd mkdir -vp /github/workspace/assets/{RPMS,SRPMS}
-fx_cmd cp -v $(find rpmbuild/RPMS -type f) /github/workspace/assets/RPMS/
-fx_cmd cp -v $(find rpmbuild/SRPMS -type f) /github/workspace/assets/SRPMS/
+fx_cmd mkdir -vp $GITHUB_WORKSPACE/assets/{RPMS,SRPMS}
+fx_cmd cp -v $(find $HOME/rpmbuild/RPMS -type f) $GITHUB_WORKSPACE/assets/RPMS/
+fx_cmd cp -v $(find $HOME/rpmbuild/SRPMS -type f) $GITHUB_WORKSPACE/assets/SRPMS/
 
 # diagnostic
-fx_cmd find /github/workspace/assets -type f
+fx_cmd find $GITHUB_WORKSPACE/assets -type f
 
 # output
-cd /github/workspace
+cd $GITHUB_WORKSPACE
 echo "::set-output name=srpm_dir::assets/SRPMS/"
 echo "::set-output name=srpm_path::assets/SRPMS/${SRPM}"
 echo "::set-output name=srpm_name::${SRPM}"
