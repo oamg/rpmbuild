@@ -12,15 +12,15 @@ name=$( grep "Name:" $INPUT_SPEC_PATH | awk '{print $2}' )
 version=$( grep "Version:" $INPUT_SPEC_PATH | awk '{print $2}' )
 
 fx_cmd () {
-  #echo ::group::$@
-  echo Command: $@
+  echo ::group::$@
+  #echo Command: $@
   "$@"
   ERR=$?
   if [ $ERR -gt 0 ]; then
     echo ::error::$@ failed ${ERR}
     exit ${ERR}
   fi
-  #echo ::endgroup::$@
+  echo ::endgroup::$@
 }
 
 ### start prep
