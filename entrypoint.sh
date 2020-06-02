@@ -75,11 +75,11 @@ fx_cmd mkdir -vp rpmbuild/RPMS
 fx_cmd cp -v /github/home/rpmbuild/SRPMS/$SRPM rpmbuild/SRPMS/
 fx_cmd cp -v $(find /github/home/rpmbuild/RPMS -type f) rpmbuild/RPMS/
 
-fx_cmd ls -la rpmbuild/SRPMS
-fx_cmd ls -la rpmbuild/RPMS
+fx_cmd find rpmbuild -type f
 
 echo "::set-output name=srpm_dir::rpmbuild/SRPMS/"
 echo "::set-output name=srpm_path::rpmbuild/SRPMS/${SRPM}"
 echo "::set-output name=srpm_name::${SRPM}"
 echo "::set-output name=rpm_dir::rpmbuild/RPMS/"
-echo "::set-output name=rpm_content_type::application/octet-stream"
+echo "::set-output name=rpm_path::$(find rpmbuild/RPMS -type f)"
+echo "::set-output name=content_type::application/octet-stream"

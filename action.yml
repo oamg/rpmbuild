@@ -6,19 +6,22 @@ inputs:
   spec_file:
     description: 'path to the spec file'
     required: true
+  keep_debuginfo:
+    description: 'keep generated debuginfo package; use boolean true or false without quotes'
+    default: false
   preinstall_packages:
     description: 'packages to install beforehand'
 
 outputs:
-  source_rpm_path:
-    description: 'path to Source RPM file'
-  source_rpm_dir_path:
-    description: 'path to  SRPMS directory'
-  source_rpm_name:
-    description: 'name of Source RPM file'
-  rpm_dir_path:
-    description: 'path to RPMS directory'
-  rpm_content_type:
+  srpm_dir:
+    description: 'SRPM directory'
+  srpm_path:
+    description: 'SRPM filepath'
+  srpm_name:
+    description: 'SRPM filename'
+  rpm_dir:
+    description: 'RPM directory'
+  content_type:
     description: 'Content-type for Upload'
 
 runs:
