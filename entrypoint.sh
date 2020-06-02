@@ -6,20 +6,25 @@
 # initial values
 #HOME=/github/home
 #GITHUB_WORKSPACE=/github/workspace
+RESULT_DEST=${GITHUB_WORKSPACE}/rpmbuild
 specFile=$(basename $INPUT_SPEC_PATH)
 name=$( grep "Name:" $INPUT_SPEC_PATH | awk '{print $2}' )
 version=$( grep "Version:" $INPUT_SPEC_PATH | awk '{print $2}' )
 
 fx_cmd () {
-  echo ::group::$@
+  #echo ::group::$@
+  echo Command: $@
   "$@"
   ERR=$?
   if [ $ERR -gt 0 ]; then
     echo ::error::$@ failed ${ERR}
     exit ${ERR}
   fi
-  echo ::endgroup::$@
+  #echo ::endgroup::$@
 }
+
+### start prep
+echo ::group::Prepare for rpmbuild...
 
 # show env
 fx_cmd env
@@ -60,8 +65,16 @@ fx_cmd mv -v ${name}-${version}.tar.gz $HOME/rpmbuild/SOURCES/
 # install all BuildRequires: listed in specFile
 fx_cmd yum-builddep --assumeyes $HOME/rpmbuild/SPECS/${specFile}
 
+### end prep
+echo ::endgroup::Prepare for rpmbuild...
+
 # main operation
+echo ::group::Starting rpmbuild...
 fx_cmd rpmbuild -ba $HOME/rpmbuild/SPECS/${specFile}
+echo ::endgroup::Starting rpmbuild...
+
+### start after action report
+echo ::group::Publish results to workspace...
 
 # Verify binary output
 fx_cmd find $HOME/rpmbuild/RPMS -type f
@@ -75,18 +88,20 @@ SRPM=$(ls -1 $HOME/rpmbuild/SRPMS/ | grep ${name})
 
 # only contents of workspace can be changed by actions and used by subsequent actions 
 # So copy all generated rpms into workspace , and publish output path relative to workspace (/github/workspace)
-fx_cmd mkdir -vp $GITHUB_WORKSPACE/assets/{RPMS,SRPMS}
-fx_cmd cp -v $(find $HOME/rpmbuild/RPMS -type f) $GITHUB_WORKSPACE/assets/RPMS/
-fx_cmd cp -v $(find $HOME/rpmbuild/SRPMS -type f) $GITHUB_WORKSPACE/assets/SRPMS/
+fx_cmd mkdir -vp $RESULT_DEST/{RPMS,SRPMS}
+fx_cmd cp -v $(find $HOME/rpmbuild/RPMS -type f -name ${name}\*rpm) $RESULT_DEST/RPMS/
+fx_cmd cp -v $(find $HOME/rpmbuild/SRPMS -type f -name ${name}\*rpm) $RESULT_DEST/SRPMS/
 
 # diagnostic
-fx_cmd find $GITHUB_WORKSPACE/assets -type f
+fx_cmd find $RESULT_DEST -type f
+
+echo ::endgroup::Publish results to workspace...
 
 # output
 cd $GITHUB_WORKSPACE
-echo "::set-output name=srpm_dir::assets/SRPMS/"
-echo "::set-output name=srpm_path::assets/SRPMS/${SRPM}"
+echo "::set-output name=srpm_dir::rpmbuild/SRPMS/"
+echo "::set-output name=srpm_path::rpmbuild/SRPMS/${SRPM}"
 echo "::set-output name=srpm_name::${SRPM}"
-echo "::set-output name=rpm_dir::assets/RPMS/"
-echo "::set-output name=rpm_path::$(find assets/RPMS -type f)"
+echo "::set-output name=rpm_dir::rpmbuild/RPMS/"
+echo "::set-output name=rpm_path::$(find rpmbuild/RPMS -type f)"
 echo "::set-output name=content_type::application/octet-stream"
