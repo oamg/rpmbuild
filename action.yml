@@ -1,9 +1,9 @@
 name: 'RPM Build'
 description: 'Build RPMs from spec file and upload it as Artifact or Release Asset'
-author: 'Naveenraj M'
+author: 'gsfjohnson'
 
 inputs:
-  spec_file:
+  spec_path:
     description: 'path to the spec file'
     required: true
   keep_debuginfo:
@@ -27,8 +27,6 @@ outputs:
 runs:
   using: 'docker'
   image: Dockerfile
-  args:
-    - ${{ inputs.spec_file }}
 
 branding:
   icon: 'package'
