@@ -32,12 +32,12 @@ fi
 # setup rpmbuild tree
 fx_cmd rpmdev-setuptree
 
-# Copy spec file from path INPUT_SPEC_PATH to /root/rpmbuild/SPECS/
-fx_cmd cp -v $GITHUB_WORKSPACE/${INPUT_SPEC_PATH} rpmbuild/SPECS/
+# Copy spec file from path INPUT_SPEC_PATH to $HOME/rpmbuild/SPECS/
+fx_cmd cp -v $GITHUB_WORKSPACE/${INPUT_SPEC_PATH} $HOME/rpmbuild/SPECS/
 #rpmSpec="rpmbuild/SPECS/${specFile}"
 
 # Rewrite Source: key in spec file
-sed -i "s=Source:.*=Source: %{name}-%{version}.tar.gz=" rpmbuild/SPECS/${specFile}
+sed -i "s=Source:.*=Source: %{name}-%{version}.tar.gz=" $HOME/rpmbuild/SPECS/${specFile}
 
 # Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
 fx_cmd curl --location --output tmp.tar.gz https://api.github.com/repos/${GITHUB_REPOSITORY}/tarball/${GITHUB_REF}
