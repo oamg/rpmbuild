@@ -16,11 +16,11 @@ fx_cmd () {
   #echo Command: $@
   "$@"
   ERR=$?
+  echo ::endgroup::$@
   if [ $ERR -gt 0 ]; then
     echo ::error::$@ failed ${ERR}
     exit ${ERR}
   fi
-  echo ::endgroup::$@
 }
 
 ### start prep
@@ -37,33 +37,39 @@ fi
 # setup rpmbuild tree
 fx_cmd rpmdev-setuptree
 
-# Copy spec file from path INPUT_SPEC_PATH to $HOME/rpmbuild/SPECS/
-fx_cmd cp -v $GITHUB_WORKSPACE/${INPUT_SPEC_PATH} $HOME/rpmbuild/SPECS/
-#rpmSpec="rpmbuild/SPECS/${specFile}"
+# if not spec file exist
+if [ ! -r ${HOME}/rpmbuild/SPECS/${specFile} ]; then
+  # Copy spec file from path INPUT_SPEC_PATH to $HOME/rpmbuild/SPECS/
+  fx_cmd cp -v $GITHUB_WORKSPACE/${INPUT_SPEC_PATH} $HOME/rpmbuild/SPECS/
 
-# Rewrite Source: key in spec file
-sed -i "s=Source:.*=Source: %{name}-%{version}.tar.gz=" $HOME/rpmbuild/SPECS/${specFile}
+  # Rewrite Source: key in spec file
+  sed -i "s=Source:.*=Source: %{name}-%{version}.tar.gz=" $HOME/rpmbuild/SPECS/${specFile}
+fi
 
-# Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
-fx_cmd curl --location --output tmp.tar.gz https://api.github.com/repos/${GITHUB_REPOSITORY}/tarball/${GITHUB_REF}
+# if not source exists
+if [ ! -r ${HOME}/rpmbuild/SOURCES/${name}-${version}.tar.gz ]; then
+  # Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
+  fx_cmd curl --location --output tmp.tar.gz https://api.github.com/repos/${GITHUB_REPOSITORY}/tarball/${GITHUB_REF}
 
-# create directory to match source file - %{name}-{version}.tar.gz of spec file
-fx_cmd mkdir -v ${name}-${version}
+  # create directory to match source file - %{name}-{version}.tar.gz of spec file
+  fx_cmd mkdir -v ${name}-${version}
 
-# Extract source code 
-fx_cmd tar xf tmp.tar.gz -C ${name}-${version} --strip-components 1
+  # Extract source code
+  fx_cmd tar xf tmp.tar.gz -C ${name}-${version} --strip-components 1
 
-# Create Source tar.gz file 
-fx_cmd tar czf ${name}-${version}.tar.gz ${name}-${version}
+  # Create Source tar.gz file
+  fx_cmd tar czf ${name}-${version}.tar.gz ${name}-${version}
 
-# list files in current directory /github/workspace/
-# await gha_exec('ls -la ');
+  # list files in current directory /github/workspace/
+  # await gha_exec('ls -la ');
 
-# Copy tar.gz file to source path
-fx_cmd mv -v ${name}-${version}.tar.gz $HOME/rpmbuild/SOURCES/
+  # Copy tar.gz file to source path
+  fx_cmd mv -v ${name}-${version}.tar.gz $HOME/rpmbuild/SOURCES/
+fi
 
 # install all BuildRequires: listed in specFile
-fx_cmd yum-builddep --assumeyes $HOME/rpmbuild/SPECS/${specFile}
+grep "BuildRequires:" $HOME/rpmbuild/SPECS/${specFile} && \
+  fx_cmd yum-builddep --assumeyes $HOME/rpmbuild/SPECS/${specFile}
 
 # main operation
 echo Starting rpmbuild...
@@ -71,6 +77,10 @@ fx_cmd rpmbuild -ba $HOME/rpmbuild/SPECS/${specFile}
 
 ### start after action report
 echo Publish results to workspace...
+
+# delete debuginfo package
+[ "$INPUT_KEEP_DEBUGINFO" != "true" ] && \
+  fx_cmd rm $(find $HOME/rpmbuild/RPMS -type f -name $name-debuginfo\*rpm)
 
 # Verify binary output
 fx_cmd find $HOME/rpmbuild/RPMS -type f
