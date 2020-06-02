@@ -79,8 +79,9 @@ fx_cmd rpmbuild -ba $HOME/rpmbuild/SPECS/${specFile}
 echo Publish results to workspace...
 
 # delete debuginfo package
-[ "$INPUT_KEEP_DEBUGINFO" != "true" ] && \
-  fx_cmd rm $(find $HOME/rpmbuild/RPMS -type f -name $name-debuginfo\*rpm)
+DEBUGINFO_RPM=$(find $HOME/rpmbuild/RPMS -type f | grep debuginfo)
+[ "$INPUT_KEEP_DEBUGINFO" != "true" ] && [ "$DEBUGINFO_RPM" != "" ] && \
+  fx_cmd rm -v $DEBUGINFO_RPM
 
 # Verify binary output
 fx_cmd find $HOME/rpmbuild/RPMS -type f
