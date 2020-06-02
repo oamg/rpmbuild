@@ -1,5 +1,5 @@
 # base image to support rpmbuild (packages will be Dist el6)
-FROM centos:6
+FROM centos:7
 
 # copy needed files
 COPY entrypoint.sh /entrypoint.sh
