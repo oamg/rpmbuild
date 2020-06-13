@@ -90,7 +90,7 @@ if [ ! -r ${HOME}/rpmbuild/SOURCES/${nameVersion}.tar.gz ]; then
     fx_cmd tar xvf /tmp/tmp.tar.gz -C /tmp/${nameVersion} --strip-components 1
   else
     # Copy source code
-    fx_cmd cp -rv $GITHUB_WORKSPACE/. /tmp/${nameVersion}
+    fx_cmd cp -r $GITHUB_WORKSPACE/. /tmp/${nameVersion}
   fi
 
   # Create Source tar.gz file
