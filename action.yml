@@ -6,6 +6,13 @@ inputs:
   spec_path:
     description: 'path to the spec file'
     required: true
+  spec_name:
+    description: 'rewrite Name: in spec file'
+  spec_version:
+    description: 'rewrite Version: in spec file'
+  redownload_source:
+    description: 'create source tar gz from workspace by default, specify true to redownload source'
+    default: false
   keep_debuginfo:
     description: 'keep generated debuginfo package; use boolean true or false without quotes'
     default: false
