@@ -5,7 +5,7 @@ FROM centos:6
 COPY entrypoint.sh /entrypoint.sh
 
 # Installing tools needed for rpmbuild
-RUN yum install -y rpm-build rpmdevtools gcc make coreutils python yum-utils
+RUN yum install -y rpm-build rpmdevtools gcc make coreutils python yum-utils diffutils
 
 # script
 ENTRYPOINT ["bash", "/entrypoint.sh"]

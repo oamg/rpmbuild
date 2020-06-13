@@ -18,7 +18,7 @@ fx_sed_i () {
   cp $2 $tmpFn
   /bin/sed --in-place "$1" "$2"
   ERR=$?
-  [ $ERR -eq 0 ] && diff -u $tmpFn $2
+  [ ! $ERR -gt 0 ] && diff -u $tmpFn $2
   echo ::endgroup::sed -i "$1" "$2"
   if [ $ERR -gt 0 ]; then
     echo ::error::sed -i "$1" "$2" failed ${ERR}
@@ -87,13 +87,13 @@ if [ ! -r ${HOME}/rpmbuild/SOURCES/${nameVersion}.tar.gz ]; then
     fx_cmd mkdir -v /tmp/${nameVersion}
 
     # Extract source code
-    fx_cmd tar xf /tmp/tmp.tar.gz -C ${nameVersion} --strip-components 1
+    fx_cmd tar xvf /tmp/tmp.tar.gz -C /tmp/${nameVersion} --strip-components 1
 
     # Create Source tar.gz file
-    fx_cmd tar czf $tmpNameVerTarGz /tmp/${nameVersion}
+    fx_cmd tar czvf $tmpNameVerTarGz -C /tmp ${nameVersion}
   else
     # Create Source tar.gz file
-    fx_cmd tar czf $tmpNameVerTarGz $GITHUB_WORKSPACE
+    fx_cmd tar czvf $tmpNameVerTarGz -C $GITHUB_WORKSPACE .
   fi
 
   # Copy tar.gz file to source path
