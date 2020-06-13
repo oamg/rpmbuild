@@ -79,22 +79,22 @@ if [ ! -r ${HOME}/rpmbuild/SOURCES/${nameVersion}.tar.gz ]; then
   #
   tmpNameVerTarGz=/tmp/${nameVersion}.tar.gz
 
+  # create directory to match source file - %{name}-{version}.tar.gz of spec file
+  fx_cmd mkdir -v /tmp/${nameVersion}
+
   if [ "$INPUT_REDOWNLOAD_SOURCE" == "true" ]; then
     # Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
     fx_cmd curl --location --output /tmp/tmp.tar.gz https://api.github.com/repos/${GITHUB_REPOSITORY}/tarball/${GITHUB_REF}
 
-    # create directory to match source file - %{name}-{version}.tar.gz of spec file
-    fx_cmd mkdir -v /tmp/${nameVersion}
-
     # Extract source code
     fx_cmd tar xvf /tmp/tmp.tar.gz -C /tmp/${nameVersion} --strip-components 1
-
-    # Create Source tar.gz file
-    fx_cmd tar czvf $tmpNameVerTarGz -C /tmp ${nameVersion}
   else
-    # Create Source tar.gz file
-    fx_cmd tar czvf $tmpNameVerTarGz -C $GITHUB_WORKSPACE .
+    # Copy source code
+    fx_cmd cp -rv $GITHUB_WORKSPACE/. /tmp/${nameVersion}
   fi
+
+  # Create Source tar.gz file
+  fx_cmd tar czvf $tmpNameVerTarGz -C /tmp $nameVersion
 
   # Copy tar.gz file to source path
   fx_cmd mv -v $tmpNameVerTarGz $HOME/rpmbuild/SOURCES/
