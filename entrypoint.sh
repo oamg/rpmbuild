@@ -120,7 +120,7 @@ if [ "$INPUT_KEEP_DEBUGINFO" != "true" -a "$DEBUGINFO_RPM" != "" ]; then
 fi
 
 # Verify binary output
-fx_cmd ll $HOME/rpmbuild/{RPMS,SRPMS}
+fx_cmd ls -aFl $HOME/rpmbuild/{RPMS,SRPMS}
 
 # setOutput rpm_path to /root/rpmbuild/RPMS , to be consumed by other actions like 
 # actions/upload-release-asset 
