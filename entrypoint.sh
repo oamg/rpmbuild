@@ -131,8 +131,8 @@ SRPM=$(ls -1 $HOME/rpmbuild/SRPMS/ | grep ${name})
 # only contents of workspace can be changed by actions and used by subsequent actions 
 # So copy all generated rpms into workspace , and publish output path relative to workspace (/github/workspace)
 fx_cmd mkdir -vp $RESULT_DEST/{RPMS,SRPMS}
-fx_cmd cp -v "$HOME/rpmbuild/RPMS/${name}*rpm" $RESULT_DEST/RPMS/
-fx_cmd cp -v "$HOME/rpmbuild/SRPMS/${name}*rpm" $RESULT_DEST/SRPMS/
+fx_cmd cp -v $(find $HOME/rpmbuild/RPMS -type f -name ${name}\*rpm) $RESULT_DEST/RPMS/
+fx_cmd cp -v $(find $HOME/rpmbuild/SRPMS -type f -name ${name}\*rpm) $RESULT_DEST/SRPMS/
 
 # diagnostic
 fx_cmd find $RESULT_DEST -type f
