@@ -89,8 +89,8 @@ if [ ! -r ${HOME}/rpmbuild/SOURCES/${nameVersion}.tar.gz ]; then
     # Extract source code
     fx_cmd tar xvf /tmp/tmp.tar.gz -C /tmp/${nameVersion} --strip-components 1
   else
-    # Copy source code
-    fx_cmd cp -r $GITHUB_WORKSPACE/. /tmp/${nameVersion}
+    # Move source code: workspace -> tmp
+    fx_cmd mv -v $GITHUB_WORKSPACE/. /tmp/${nameVersion}
   fi
 
   # Create Source tar.gz file
@@ -119,9 +119,6 @@ if [ "$INPUT_KEEP_DEBUGINFO" != "true" -a "$DEBUGINFO_RPM" != "" ]; then
   fx_cmd rm -v $(find $HOME/rpmbuild/RPMS -type f | grep debuginfo)
 fi
 
-# Verify binary output
-fx_cmd ls -aFl $HOME/rpmbuild/{RPMS,SRPMS}
-
 # setOutput rpm_path to /root/rpmbuild/RPMS , to be consumed by other actions like 
 # actions/upload-release-asset 
 
@@ -132,7 +129,7 @@ SRPM=$(ls -1 $HOME/rpmbuild/SRPMS/ | grep ${name})
 # So copy all generated rpms into workspace , and publish output path relative to workspace (/github/workspace)
 fx_cmd mkdir -vp $RESULT_DEST/{RPMS,SRPMS}
 fx_cmd cp -v $(find $HOME/rpmbuild/RPMS -type f -name ${name}\*rpm) $RESULT_DEST/RPMS/
-fx_cmd cp -v $(find $HOME/rpmbuild/SRPMS -type f -name ${name}\*rpm) $RESULT_DEST/SRPMS/
+fx_cmd cp -v $HOME/rpmbuild/SRPMS/$SRPM $RESULT_DEST/SRPMS/
 
 # diagnostic
 fx_cmd find $RESULT_DEST -type f
