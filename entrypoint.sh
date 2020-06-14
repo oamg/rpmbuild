@@ -90,7 +90,7 @@ if [ ! -r ${HOME}/rpmbuild/SOURCES/${nameVersion}.tar.gz ]; then
     fx_cmd tar xvf /tmp/tmp.tar.gz -C /tmp/${nameVersion} --strip-components 1
   else
     # Move source code: workspace -> tmp
-    fx_cmd find $GITHUB_WORKSPACE -maxdepth 1 -mindepth 1 | mv -v -t /tmp/${nameVersion}
+    fx_cmd mv -v -t /tmp/${nameVersion} $GITHUB_WORKSPACE/*
   fi
 
   # Create Source tar.gz file
