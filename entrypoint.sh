@@ -114,9 +114,9 @@ fx_cmd rpmbuild -ba $specPath
 echo Publish results to workspace...
 
 # delete debuginfo package
-DEBUGINFO_RPM=$(find $HOME/rpmbuild/RPMS -type f | grep --count debuginfo)
+DEBUGINFO_RPM=$(find $HOME/rpmbuild/RPMS -type f | grep debuginfo)
 if [ "$INPUT_KEEP_DEBUGINFO" != "true" -a "$DEBUGINFO_RPM" != "" ]; then
-  fx_cmd rm -v $(find $HOME/rpmbuild/RPMS -type f | grep debuginfo)
+  fx_cmd rm -v $DEBUGINFO_RPM
 fi
 
 # setOutput rpm_path to /root/rpmbuild/RPMS , to be consumed by other actions like 
