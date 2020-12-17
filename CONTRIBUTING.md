@@ -48,12 +48,10 @@ If you think you have an idea which will make this project more useful to the co
 ### Submitting a pull request
 
 1. Fork and clone the repository
-2. Configure and install the dependencies: ```npm install```
-3. Make sure the tests pass on your machine: ```npm run test```
-4. Create a new branch: ```git checkout -b my-branch-name```
-5. Make your change, add tests, and make sure the tests still pass
-6. Push to your fork and submit a pull request
-7. Pat your self on the back and wait for your pull request to be reviewed and merged.
+2. Create a new branch: ```git checkout -b my-branch-name```
+3. Make your change, add tests, and make sure the tests still pass
+4. Push to your fork and submit a pull request
+5. Pat your self on the back and wait for your pull request to be reviewed and merged.
 
 ## Resources
 * [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)  
