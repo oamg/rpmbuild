@@ -1,11 +1,18 @@
 name: 'RPM Build'
-description: 'Build RPMs from spec file and upload it as Artifact or Release Asset'
+description: 'Build RPMs from spec file and upload them as Release Assets'
 author: 'gsfjohnson'
 
 inputs:
   spec_path:
     description: 'path to the spec file'
     required: true
+  spec_name:
+    description: 'rewrite Name: in spec file'
+  spec_version:
+    description: 'rewrite Version: in spec file'
+  redownload_source:
+    description: 'create source tar gz from workspace by default, specify true to redownload source'
+    default: false
   keep_debuginfo:
     description: 'keep generated debuginfo package; use boolean true or false without quotes'
     default: false
@@ -14,15 +21,19 @@ inputs:
 
 outputs:
   srpm_dir:
-    description: 'SRPM directory'
+    description: 'Path to the directory with the generated SRPM file.'
   srpm_path:
-    description: 'SRPM filepath'
+    description: 'Path to the generated SRPM file.'
   srpm_name:
-    description: 'SRPM filename'
+    description: 'Name of the generated SRPM file.'
   rpm_dir:
-    description: 'RPM directory'
+    description: 'Path to the directory with the generated RPM file.'
+  rpm_path:
+    description: 'Path to the generated RPM file.'
+  rpm_name:
+    description: 'Name of the generated RPM file.'
   content_type:
-    description: 'Content-type for Upload'
+    description: 'Content-type for the RPM upload.'
 
 runs:
   using: 'docker'
