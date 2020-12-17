@@ -122,14 +122,17 @@ fi
 # setOutput rpm_path to /root/rpmbuild/RPMS , to be consumed by other actions like 
 # actions/upload-release-asset 
 
-# Get source rpm name , to provide file name, path as output
-SRPM=$(ls -1 $HOME/rpmbuild/SRPMS/ | grep ${name})
-
 # only contents of workspace can be changed by actions and used by subsequent actions 
 # So copy all generated rpms into workspace , and publish output path relative to workspace (/github/workspace)
 fx_cmd mkdir -vp $RESULT_DEST/{RPMS,SRPMS}
 fx_cmd cp -v $(find $HOME/rpmbuild/RPMS -type f -name ${name}\*rpm) $RESULT_DEST/RPMS/
-fx_cmd cp -v $HOME/rpmbuild/SRPMS/$SRPM $RESULT_DEST/SRPMS/
+fx_cmd cp -v $(find $HOME/rpmbuild/SRPMS -type f -name ${name}\*rpm) $RESULT_DEST/SRPMS/
+
+# Get source rpm name , to provide file name, path as output
+SRPM=$(ls -1 $RESULT_DEST/SRPMS/ | grep ${name})
+
+# Get rpm name
+RPM=$(ls -1 $RESULT_DEST/RPMS/ | grep ${name})
 
 # diagnostic
 fx_cmd find $RESULT_DEST -type f
@@ -140,5 +143,6 @@ echo "::set-output name=srpm_dir::rpmbuild/SRPMS/"
 echo "::set-output name=srpm_path::rpmbuild/SRPMS/${SRPM}"
 echo "::set-output name=srpm_name::${SRPM}"
 echo "::set-output name=rpm_dir::rpmbuild/RPMS/"
-echo "::set-output name=rpm_path::$(find rpmbuild/RPMS -type f)"
+echo "::set-output name=rpm_path::rpmbuild/RPMS/${RPM}"
+echo "::set-output name=rpm_name::${RPM}"
 echo "::set-output name=content_type::application/octet-stream"

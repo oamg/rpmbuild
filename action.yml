@@ -1,5 +1,5 @@
 name: 'RPM Build'
-description: 'Build RPMs from spec file and upload it as Artifact or Release Asset'
+description: 'Build RPMs from spec file and upload them as Release Assets'
 author: 'gsfjohnson'
 
 inputs:
@@ -21,15 +21,19 @@ inputs:
 
 outputs:
   srpm_dir:
-    description: 'SRPM directory'
+    description: 'Path to the directory with the generated SRPM file.'
   srpm_path:
-    description: 'SRPM filepath'
+    description: 'Path to the generated SRPM file.'
   srpm_name:
-    description: 'SRPM filename'
+    description: 'Name of the generated SRPM file.'
   rpm_dir:
-    description: 'RPM directory'
+    description: 'Path to the directory with the generated RPM file.'
+  rpm_path:
+    description: 'Path to the generated RPM file.'
+  rpm_name:
+    description: 'Name of the generated RPM file.'
   content_type:
-    description: 'Content-type for Upload'
+    description: 'Content-type for the RPM upload.'
 
 runs:
   using: 'docker'
